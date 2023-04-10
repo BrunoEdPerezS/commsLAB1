@@ -53,9 +53,6 @@ void loop() {
 String TOKEN = Serial.readString();
 if (TOKEN == "A")
 { 
-  FLAGvalue = true;
-}
-while(FLAGvalue){
 
 //Serial.println("Hola mundo ");
 String v1 =String(SINE[n]);
@@ -71,10 +68,6 @@ if (n >= 255)
  n=0;
 else 
  n = n+1;
-Serial.flush();
-delay(100);
-if(Serial.available()){
-break;
-}
+delay(10);
 }
 }
