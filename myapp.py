@@ -9,10 +9,14 @@ import numpy as np
 import csv
 
 #Cantidad de datos para captura
-nCAPTURA = 10
+nCAPTURA = 100
 escalaX = list(range(nCAPTURA))
 escalaX = list(range(nCAPTURA))
-grafico1 = list(range(nCAPTURA))
+
+grafico1_x = list(range(nCAPTURA))
+grafico1_y = list(range(nCAPTURA))
+grafico1_z = list(range(nCAPTURA))
+
 grafico2 = list(range(nCAPTURA))
 grafico3 = list(range(nCAPTURA))
 grafico4 = list(range(nCAPTURA))
@@ -33,7 +37,7 @@ class myClassA(Thread):
         time.sleep(2)
         #Iniciar transferencia, para activar transferencia rapida utilizar este método
         arduino.write(bytes('A', 'utf-8')) 
-        fieldnames = ["Gyro","Temp","Press","Acc","Mag","Ext"]
+        fieldnames = ["Gyro_x","Gyro_y","Gyro_z","Temp","Press","Acc","Mag","Ext"]
         while(1):
             #Para errores de sincronìa utilizar este metodo
             #arduino.write(bytes('A', 'utf-8'))
@@ -44,27 +48,30 @@ class myClassA(Thread):
             decodedString = rawString.decode('utf-8')
             print(decodedString)
             #Separar string
-            lectura1, lectura2, lectura3, lectura4, lectura5, lectura6  = decodedString.split(",")
+            lectura1_x, lectura1_y, lectura1_z, lectura2, lectura3, lectura4, lectura5, lectura6  = decodedString.split(",")
             #print(lectura2)
             # Printear, pasar a int, y guardar en array
-            grafico1[index] = int(lectura1)
-            grafico2[index] = int(lectura2)
-            grafico3[index] = int(lectura3)
-            grafico4[index] = int(lectura4)
-            grafico5[index] = int(lectura5)
-            grafico6[index] = int(lectura6)
+            grafico1_x[index] = float(lectura1_x)
+            grafico1_y[index] = float(lectura1_y)
+            grafico1_z[index] = float(lectura1_z)
+            grafico2[index] = float(lectura2)
+            grafico3[index] = float(lectura3)
+            grafico4[index] = float(lectura4)
+            grafico5[index] = float(lectura5)
+            grafico6[index] = float(lectura6)
             if (index >=((nCAPTURA)-1)):
                 index = 0
                 with open('Datos.csv', 'w') as csvfile:
                     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
                     writer.writeheader()
-                    for i in range(len(grafico1)):
-                        writer.writerow({'Gyro':grafico1[i],'Temp':grafico2[i],'Press':grafico3[i],'Acc':grafico4[i],'Mag':grafico5[i],'Ext':grafico6[i]})    
+                    for i in range(len(grafico1_x)):
+                        writer.writerow({'Gyro_x':grafico1_x[i],'Gyro_y':grafico1_y[i],'Gyro_z':grafico1_z[i],'Temp':grafico2[i],'Press':grafico3[i],'Acc':grafico4[i],'Mag':grafico5[i],'Ext':grafico6[i]})    
                 csvfile.close()
             else:
                 index = index+1
             #print(grafico1)
-        arduino.write(bytes('A', 'utf-8')) 
+            #arduino.write(bytes('A', 'utf-8'))
+         
         arduino.close()
 
 
@@ -92,7 +99,9 @@ class MainWindow(QtWidgets.QMainWindow):
     #Funcion para graficar
     def plot(self, x, y):
         self.graphWidget.plot(x, y)
-
+    def plotCOLOR(self, x, y, color):
+        pen = pg.mkPen(color=color)
+        self.graphWidget.plot(x, y, pen=pen,)
 
 #---Eventos para los botones, estos triggean las funciones de actualizacion del grafico-------------------------
 
@@ -133,32 +142,34 @@ class MainWindow(QtWidgets.QMainWindow):
     #Funcion para actualizar grafico Gyro
     def actualizarGyro(self):
         self.graphWidget.clear()
-        self.graphWidget.setYRange(1, 260)
-        self.plot(escalaX,grafico1)
+        self.graphWidget.setYRange(-500, 500)
+        self.plotCOLOR(escalaX,grafico1_x,'r')
+        self.plotCOLOR(escalaX,grafico1_y,'g')
+        self.plotCOLOR(escalaX,grafico1_z,'b')
     #Funcion para actualizar grafico temp
     def actualizarTemp(self):
         self.graphWidget.clear()
-        self.graphWidget.setYRange(1, 260)
+        self.graphWidget.setYRange(-10, 90)
         self.plot(escalaX,grafico2)
    #Funcion para actualizar grafico presion
     def actualizarPress(self):
         self.graphWidget.clear()
-        self.graphWidget.setYRange(1, 260)
+        self.graphWidget.setYRange(1, 100)
         self.plot(escalaX,grafico3)
    #Funcion para actualizar grafico aceleracion
     def actualizarAcc(self):
         self.graphWidget.clear()
-        self.graphWidget.setYRange(1, 260)
+        self.graphWidget.setYRange(-8, 8)
         self.plot(escalaX,grafico4)
    #Funcion para actualizar grafico megnetometro
     def actualizarMag(self):
         self.graphWidget.clear()
-        self.graphWidget.setYRange(1, 260)
+        self.graphWidget.setYRange(-60, 60)
         self.plot(escalaX,grafico5)
    #Funcion para actualizar grafico Sensor
     def actualizarSens(self):
         self.graphWidget.clear()
-        self.graphWidget.setYRange(1, 260)
+        self.graphWidget.setYRange(1, 200)
         self.plot(escalaX,grafico6)
   
 
